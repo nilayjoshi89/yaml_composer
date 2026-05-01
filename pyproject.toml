@@ -1,0 +1,73 @@
+[project]
+name = "py-yaml-composer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Nilay Joshi", email = "nilayjoshi89@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0.3",
+]
+
+[project.scripts]
+py-yaml-composer = "py_yaml_composer:main.entry_point"
+
+[build-system]
+requires = ["uv_build>=0.11.5,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "deepdiff>=9.0.0",
+    "mypy>=1.20.2",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.12",
+    "types-pyyaml>=6.0.12.20260408",
+]
+
+[tool.coverage.run]
+omit = [
+    "**/__init__.py",
+    "tests/*",
+]
+
+[tool.ruff]
+line-length = 83
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # import sorting
+    "UP",  # pyupgrade,
+    "S",   # bandit
+    "B",   # bugbear
+    "A",   # flake-builtins
+    "C4",  # comprehensions
+    "SIM", # simplifications
+    "TID", # tidy imports
+    "TCH", # type-checking imports
+    "RUF", # Ruff-specific rules
+    "N",   # pep8-naming
+]
+ignore = ["E501"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "cr-lf"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disable_error_code = ["import-untyped"]
