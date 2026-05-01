@@ -1,0 +1,73 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Ruff check",
+            "type": "process",
+            "command": "${workspaceFolder}/.venv/Scripts/ruff.exe",
+            "args": [
+                "check",
+                "--output-format",
+                "concise",
+                "."
+            ],
+            "problemMatcher": {
+                "owner": "ruff",
+                "pattern": {
+                    "regexp": "^(.+):(\\d+): (\\w+) (.+)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "code": 4,
+                    "message": 5
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "clear": true
+            },
+            "group": "build"
+        },
+        {
+            "label": "mypy check",
+            "type": "process",
+            "command": "${workspaceFolder}/.venv/Scripts/mypy.exe",
+            "args": [
+                ".",
+                "--config-file",
+                "pyproject.toml"
+            ],
+            "problemMatcher": {
+                "owner": "mypy",
+                "pattern": {
+                    "regexp": "^(.+):(\\d+): (error|warning|note): (.+)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "group": "build"
+        },
+        {
+            "label": "Complete check",
+            "dependsOn": [
+                "Ruff check",
+                "mypy check"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
