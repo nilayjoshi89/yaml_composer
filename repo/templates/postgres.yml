@@ -1,0 +1,31 @@
+### SAMPLE ARGUMENTS
+# X-REF-CONTAINER-NAME: postgres_db
+# X-REF-ENV:
+#   - POSTGRES_DB=mydb
+#   - POSTGRES_USER=user1
+#   - POSTGRES_PASSWORD=example
+# X-REF-PORTS:
+#   - "5432:5432"
+# X-REF-VOLUME:
+#   - .\db1:/var/lib/postgresql
+###
+
+X-REF-FUNCT-TEMPLATE-POSTGRES:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+
+  image: X-REF-IMAGE-POSTGRES
+  container_name: "{X-ARG-1}"
+  shm_size: 128mb
+  environment:
+    - "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}"
+  volumes:
+    - "{X-ARG-4}"
+  healthcheck:
+    test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 15s

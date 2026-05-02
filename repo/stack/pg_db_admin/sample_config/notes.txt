@@ -1,0 +1,2 @@
+copy pgpass to /var/lib/pgadmin/storage/admin_admin.com
+@ is replaced by _

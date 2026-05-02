@@ -1,0 +1,53 @@
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/postgres.yml
+  - templates/pg_admin.yml
+X-OUTPUT: services/pg_db_admin_service.yml
+X-OVERRIDE:
+  #PG DB-1 Overrides
+  X-REF-DB1-CONTAINER-NAME: db1
+  X-REF-DB1-ENV:
+    - POSTGRES_DB=mydb1
+    - POSTGRES_USER=user
+    - POSTGRES_PASSWORD=password
+  X-REF-DB1-PORTS: []
+  X-REF-DB1-VOLUME:
+    - ${PG_DB_ADMIN_DATA:?}\db1:/var/lib/postgresql
+
+  #PG DB-2 Overrides
+  X-REF-DB2-CONTAINER-NAME: db2
+  X-REF-DB2-ENV:
+    - POSTGRES_DB=mydb2
+    - POSTGRES_USER=user
+    - POSTGRES_PASSWORD=password
+  X-REF-DB2-PORTS: []
+  X-REF-DB2-VOLUME:
+    - ${PG_DB_ADMIN_DATA:?}\db2:/var/lib/postgresql
+
+  # PG_ADMIN
+  X-REF-PGADMIN-CONTAINER-NAME: pg_admin
+  X-REF-PGADMIN-ENV:
+    - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+    - PGADMIN_DEFAULT_PASSWORD=password
+  X-REF-PGADMIN-PORTS: 8080:80
+  X-REF-PGADMIN-VOLUME:
+    - ${PG_DB_ADMIN_DATA:?}\pgadmin\data:/var/lib/pgadmin
+    - ${PG_DB_ADMIN_DATA:?}\pgadmin\servers.json:/pgadmin4/servers.json
+
+services:
+  db-one:
+    X-REF-FUNCT-TEMPLATE-POSTGRES(X-REF-DB1-CONTAINER-NAME,X-REF-DB1-ENV,X-REF-DB1-PORTS,X-REF-DB1-VOLUME):
+    networks:
+      - pg_service_network
+  db-two:
+    X-REF-FUNCT-TEMPLATE-POSTGRES(X-REF-DB2-CONTAINER-NAME,X-REF-DB2-ENV,X-REF-DB2-PORTS,X-REF-DB2-VOLUME):
+    networks:
+      - pg_service_network
+  pg_admin:
+    X-REF-FUNCT-TEMPLATE-PG-ADMIN(X-REF-PGADMIN-CONTAINER-NAME,X-REF-PGADMIN-ENV,X-REF-PGADMIN-PORTS,X-REF-PGADMIN-VOLUME):
+    networks:
+      - pg_service_network
+networks:
+  pg_service_network:
+    name: pg_service_network

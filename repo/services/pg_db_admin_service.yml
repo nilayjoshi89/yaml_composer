@@ -1,0 +1,79 @@
+services:
+  db-one:
+    image: postgres:18.3-alpine
+    container_name: db1
+    restart: unless-stopped
+    environment:
+    - TZ=Asia/Singapore
+    - POSTGRES_DB=mydb1
+    - POSTGRES_USER=user
+    - POSTGRES_PASSWORD=password
+    ports: []
+    volumes:
+    - ${PG_DB_ADMIN_DATA:?}\db1:/var/lib/postgresql
+    networks:
+    - pg_service_network
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    shm_size: 128mb
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: '1.0'
+  db-two:
+    image: postgres:18.3-alpine
+    container_name: db2
+    restart: unless-stopped
+    environment:
+    - TZ=Asia/Singapore
+    - POSTGRES_DB=mydb2
+    - POSTGRES_USER=user
+    - POSTGRES_PASSWORD=password
+    ports: []
+    volumes:
+    - ${PG_DB_ADMIN_DATA:?}\db2:/var/lib/postgresql
+    networks:
+    - pg_service_network
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    shm_size: 128mb
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: '1.0'
+  pg_admin:
+    image: dpage/pgadmin4
+    container_name: pg_admin
+    restart: unless-stopped
+    environment:
+    - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+    - PGADMIN_DEFAULT_PASSWORD=password
+    ports:
+    - 8080:80
+    volumes:
+    - ${PG_DB_ADMIN_DATA:?}\pgadmin\data:/var/lib/pgadmin
+    - ${PG_DB_ADMIN_DATA:?}\pgadmin\servers.json:/pgadmin4/servers.json
+    networks:
+    - pg_service_network
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: '1.0'
+networks:
+  pg_service_network:
+    name: pg_service_network

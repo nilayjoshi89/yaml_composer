@@ -20,6 +20,7 @@ class AppConfig:
         parser.add_argument(
             "-w",
             "--workspace",
+            default="/yaml_workspace",
             help="Workspace location used to load/process/generate yaml files.",
         )
         args = parser.parse_args()

@@ -1,0 +1,24 @@
+### SAMPLE ARGUMENTS
+# X-REF-CONTAINER-NAME: pd_admin
+# X-REF-ENV:
+#   PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#   PGADMIN_DEFAULT_PASSWORD: password
+#   PGADMIN_LISTEN_ADDRESS: "0.0.0.0"
+# X-REF-PORTS:
+#   - "80:80"
+# X-REF-VOLUME:
+#   - ~/data/pgadmin_data:/var/lib/pgadmin
+#   - ./local-cloud/servers.json:/pgadmin4/servers.json # preconfigured servers/connections   
+#   - ./local-cloud/pgpass:/pgadmin4/pgpass # passwords for the connections in this file
+###
+
+X-REF-FUNCT-TEMPLATE-PG-ADMIN:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-PG-ADMIN4
+  container_name: "{X-ARG-1}"
+  environment: "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}" #:80
+  volumes:
+    - "{X-ARG-4}"
