@@ -8,7 +8,7 @@ from py_yaml_composer.traverser.basic_dfs import YamlTraverser
 from tests.py_yaml_composer_tests.mock_file_helper import MockFileHelper
 
 
-class TestYaml:
+class TestYamlReferences:
     def create_generator(self, input_yaml_data: dict[str, Any]) -> None:
         input_data: dict[str, Any] = {
             "X-OUTPUT": MockFileHelper.output_file
@@ -106,7 +106,9 @@ class TestYaml:
             "X-REF-Node2": None,
         }
 
-        self.mock_file_helper = MockFileHelper({MockFileHelper.input_file: input_data})
+        self.mock_file_helper = MockFileHelper(
+            {MockFileHelper.input_file: input_data}
+        )
 
         self.generator = YamlGenerator(
             file_helper=self.mock_file_helper,
@@ -120,7 +122,9 @@ class TestYaml:
 
         # assert
         assert exc_info.type is ValueError
-        assert str(exc_info.value) == "Output file path not specified in the template"
+        assert (
+            str(exc_info.value) == "Output file path not specified in the template"
+        )
 
     def test_local_ref_resolution(self) -> None:
         # arrange
@@ -246,7 +250,9 @@ class TestYaml:
         }
 
         self.create_generator(input_data)
-        self.mock_file_helper.setup_ref_file("RefFile.yaml", file_content=ref_file_data)
+        self.mock_file_helper.setup_ref_file(
+            "RefFile.yaml", file_content=ref_file_data
+        )
 
         # act
         self.generator.start(MockFileHelper.input_file)
@@ -272,7 +278,9 @@ class TestYaml:
         }
 
         self.create_generator(input_data)
-        self.mock_file_helper.setup_ref_file("RefFile.yaml", file_content=ref_file_data)
+        self.mock_file_helper.setup_ref_file(
+            "RefFile.yaml", file_content=ref_file_data
+        )
 
         # act
         self.generator.start(MockFileHelper.input_file)
@@ -303,7 +311,9 @@ class TestYaml:
             "Node2": "LocalValue",
         }
         self.create_generator(input_data)
-        self.mock_file_helper.setup_ref_file("RefFile.yaml", file_content=ref_file_data)
+        self.mock_file_helper.setup_ref_file(
+            "RefFile.yaml", file_content=ref_file_data
+        )
         self.mock_file_helper.setup_ref_file(
             "RefFile2.yaml", file_content=ref_file_data2
         )

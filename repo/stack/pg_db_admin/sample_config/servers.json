@@ -1,0 +1,30 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Database-1",
+            "Group": "DBG",
+            "Port": 5432,
+            "Username": "user",
+            "Host": "db1",
+            "MaintenanceDB": "mydb1",
+            "ConnectionParameters": {
+                "sslmode": "prefer",
+                "connect_timeout": 10,
+                "passfile": "/pgpass"
+            }
+        },
+        "2": {
+            "Name": "Database-2",
+            "Group": "DBG",
+            "Port": 5432,
+            "Username": "user",
+            "Host": "db2",
+            "MaintenanceDB": "mydb2",
+            "ConnectionParameters": {
+                "sslmode": "prefer",
+                "connect_timeout": 10,
+                "passfile": "/pgpass2"
+            }
+        }
+    }
+}

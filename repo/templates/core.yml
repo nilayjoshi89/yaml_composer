@@ -1,0 +1,20 @@
+X-REF-BASE-TEMPLATE:
+  environment:
+    - TZ=Asia/Singapore
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  pids_limit: 100
+  mem_limit: 512m #b, k/kb, m/mb, or g/gb
+  cpus: "1.0"
+
+X-REF-BASE-READONLY-TEMPLATE:
+  environment:
+    - TZ=Asia/Singapore
+  restart: unless-stopped
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  pids_limit: 100
+  mem_limit: 512m #b, k/kb, m/mb, or g/gb
+  cpus: "1.0"

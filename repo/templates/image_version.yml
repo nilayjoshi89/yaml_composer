@@ -1,0 +1,2 @@
+X-REF-IMAGE-POSTGRES: postgres:18.3-alpine
+X-REF-IMAGE-PG-ADMIN4: dpage/pgadmin4

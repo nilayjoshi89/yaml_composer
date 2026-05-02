@@ -25,6 +25,8 @@ class YamlSortDockerComposeNodeAction(YamlActionBase):
         ]
 
         if isinstance(data, dict):
+            if len(data) < 1:
+                return
             copy_dict: dict[Any, Any] = dict(
                 sorted(
                     data.items(),
@@ -40,16 +42,22 @@ class YamlSortDockerComposeNodeAction(YamlActionBase):
             return
 
         if isinstance(data, list):
-            copy_list: list[Any] = [
-                *sorted(
-                    data,
-                    key=lambda item: (
-                        node_order.index(item[0])
-                        if item[0] in node_order
-                        else len(node_order) + 1
-                    ),
-                )
-            ]
-            data.clear()
-            data.extend(copy_list)
+            if len(data) < 1:
+                return
+            try:
+                copy_list: list[Any] = [
+                    *sorted(
+                        data,
+                        key=lambda item: (
+                            node_order.index(item[0])
+                            if item[0] in node_order
+                            else len(node_order) + 1
+                        ),
+                    )
+                ]
+                data.clear()
+                data.extend(copy_list)
+            except Exception:
+                print("failed to sort")
+                pass
             return

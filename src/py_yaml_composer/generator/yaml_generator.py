@@ -2,6 +2,7 @@ from typing import Any
 
 from py_yaml_composer.actions.action_base import YamlActionBase
 from py_yaml_composer.actions.action_context import ActionContext
+from py_yaml_composer.actions.function_action import YamlFunctionAction
 from py_yaml_composer.actions.xref_action import YamlXRefAction
 from py_yaml_composer.generator.base import YamlGeneratorBase
 from py_yaml_composer.traverser.base import YamlTraverseBase
@@ -24,9 +25,11 @@ class YamlGenerator(YamlGeneratorBase):
 
         output_file_path = self.get_output_file_path(template_data)
         ref_data = self.get_ref_data(template_data)
+        context: ActionContext = ActionContext(ref_data=ref_data)
+
+        YamlFunctionAction().apply(template_data, ref_data)
 
         for action in self.multistage_actions:
-            context: ActionContext = ActionContext(ref_data=ref_data)
             self.traverser.traverse(template_data, action, context)
 
         self.fileHelper.save(template_data, output_file_path)
