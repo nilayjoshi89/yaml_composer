@@ -141,3 +141,36 @@ class TestYamlFunctions:
 
         # assert
         self.verify_no_diff(expected_output)
+
+    def test_function_with_deep_composite_argument2(self) -> None:
+        # arrange
+        input_data: dict[str, Any] = {
+            "X-OVERRIDE": {
+                "X-REF-GENERIC-COMPONENT": {
+                    "type": "{X-ARG-1}",
+                    "name": "{X-ARG-2}",
+                    "config": {"timeout": "{X-ARG-3}"},
+                }
+            },
+            "components": {
+                "api-handler": {
+                    "X-REF-GENERIC-COMPONENT('handler', 'api-processor', '30')": None
+                }
+            },
+        }
+        expected_output: dict[str, Any] = {
+            "components": {
+                "api-handler": {
+                    "type": "handler",
+                    "name": "api-processor",
+                    "config": {"timeout": "30"},
+                }
+            }
+        }
+        self.create_generator(input_data)
+
+        # act
+        self.generator.start(MockFileHelper.input_file)
+
+        # assert
+        self.verify_no_diff(expected_output)

@@ -151,12 +151,15 @@ class YamlFunctionAction:
 
     @staticmethod
     def get_function_arguments(function: str) -> list[str]:
-        return (
-            RegexHelper.match(YamlFunctionAction.pattern_func_call, function)[1]
+        return [
+            item.strip()
+            for item in RegexHelper.match(
+                YamlFunctionAction.pattern_func_call, function
+            )[1]
             .replace("'", "")
             .replace('"', "")
             .split(",")
-        )
+        ]
 
     @staticmethod
     def is_funct_arg(argument: str) -> bool:
