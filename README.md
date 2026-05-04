@@ -1187,7 +1187,3 @@ Contributions welcome! Please:
 - [Python argparse](https://docs.python.org/3/library/argparse.html) - Command-line interface creation
 
 ---
-
-**Created:** May 2026  
-**Maintainer:** [Your Name]
-**License:** [Your License Here]
