@@ -42,6 +42,13 @@ pip install -e ".[dev]"
 # Generate YAML from template
 py-yaml-composer my_template.yml -w /path/to/workspace
 
+# Using bat to run on Docker container
+yaml_composer.bat .\\repo ./stack/pg_db_admin/pg_db_admin_app_stack.yml
+
+#Or docker run command
+docker run --rm -v .\\repo:/yaml_workspace nilayjoshi89/yaml_composer:dev-v0.1 ./stack/pg_db_admin/pg_db_admin_app_stack.yml
+
+
 # Output is written to location specified in template's X-OUTPUT field
 ```
 
