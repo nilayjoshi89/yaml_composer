@@ -11,7 +11,7 @@ A **template-based YAML generator** for composing reusable templates with parame
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![License](https://img.shields.io/github/license/nilayjoshi89/yaml_composer)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v2.json)](https://github.com/astral-sh/uv)
+![uv](https://img.shields.io/badge/package--manager-uv-29B6F6?logo=python)
 
 ---
 
@@ -321,9 +321,10 @@ X-OVERRIDE:
 
 roles:
   admin:
-    permissions:
-      X-REF-PERMISSIONS: null
+    permissions: X-REF-PERMISSIONS
 ```
+
+> **Note:** A list-valued reference must appear as a **value**, not a key. Using `X-REF-PERMISSIONS: null` as a key only works when the reference resolves to a dict.
 
 **Output:**
 ```yaml
@@ -433,25 +434,25 @@ database:
 
 ### Example 8: Composite Arguments (String Interpolation)
 
-Combine fixed text with argument placeholders inside a single value.
+Embed a placeholder inside a larger string — prefix and suffix around `{X-ARG-N}` are preserved. Each field supports **one placeholder** per value.
 
 **Template:**
 ```yaml
 X-OVERRIDE:
   X-REF-ServiceDef:
-    service_id: "{X-ARG-1}-{X-ARG-2}"
-    registry: mycompany/{X-ARG-1}:{X-ARG-3}
+    service_id: "svc-{X-ARG-1}"
+    registry: mycompany/{X-ARG-2}
 
 services:
   processor:
-    X-REF-ServiceDef('data', 'prod', 'v2.1'): null
+    X-REF-ServiceDef('prod', 'data:v2.1'): null
 ```
 
 **Output:**
 ```yaml
 services:
   processor:
-    service_id: data-prod
+    service_id: svc-prod
     registry: mycompany/data:v2.1
 ```
 
