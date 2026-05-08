@@ -1,0 +1,28 @@
+### SAMPLE ARGUMENTS
+#  X-REF-KARAKEEP-CONTAINER-NAME: karakeep-app
+#  X-REF-KARAKEEP-ENV:
+#    - NEXTAUTH_SECRET=super_random_string
+#    - MEILI_MASTER_KEY=another_random_string
+#    - NEXTAUTH_URL=http://localhost:8080
+#    - MEILI_ADDR=http://karakeep-meilisearch:7700
+#    - BROWSER_WEB_URL=http://karakeep-chrome:9222
+#  X-REF-KARAKEEP-PORTS: 8080:3000
+#  X-REF-KARAKEEP-VOLUME:
+#    - ${KARAKEEP_DATA:?}\app-data:/data
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-KARAKEEP(X-REF-KARAKEEP-CONTAINER-NAME,X-REF-KARAKEEP-ENV,X-REF-KARAKEEP-PORTS,X-REF-KARAKEEP-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-KARAKEEP:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-KARAKEEP
+  container_name: "{X-ARG-1}"
+  environment:
+    - KARAKEEP_VERSION=release
+    - DATA_DIR=/data
+    - "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}"
+  volumes:
+    - "{X-ARG-4}"

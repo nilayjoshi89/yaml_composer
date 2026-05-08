@@ -1,0 +1,25 @@
+### SAMPLE ARGUMENTS
+#  X-REF-MEILI-ENV:
+#    - MEILI_MASTER_KEY=another_random_string
+#  X-REF-MEILI-VOLUME:
+#    - ${DATA_DIR:?}\meili-data:/meili_data
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-MEILISEARCH("meilisearch",X-REF-MEILI-ENV,X-REF-MEILI-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-MEILISEARCH:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-MEILISEARCH
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+    - MEILI_NO_ANALYTICS=true
+  volumes:
+    - "{X-ARG-3}"
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://localhost:7700/health || exit 1"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 20s

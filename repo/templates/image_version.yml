@@ -1,2 +1,5 @@
 X-REF-IMAGE-POSTGRES: postgres:18.3-alpine
 X-REF-IMAGE-PG-ADMIN4: dpage/pgadmin4
+X-REF-IMAGE-KARAKEEP: ghcr.io/karakeep-app/karakeep:release
+X-REF-IMAGE-CHROME-ALPINE: gcr.io/zenika-hub/alpine-chrome:124
+X-REF-IMAGE-MEILISEARCH: getmeili/meilisearch:v1.41.0

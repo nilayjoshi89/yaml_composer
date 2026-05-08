@@ -1,0 +1,39 @@
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/karakeep.yml
+  - templates/chrome_alpine.yml
+  - templates/meilisearch.yml
+X-OUTPUT: services/karakeep.yml
+X-OVERRIDE:
+  X-REF-KARAKEEP-CONTAINER-NAME: karakeep-app
+  X-REF-KARAKEEP-ENV:
+    - NEXTAUTH_SECRET=${KARAKEEP_APP_SECRET:?} # openssl rand -base64 36
+    - MEILI_MASTER_KEY=${KARAKEEP_MEILI_SECRET:?} # openssl rand -base64 36
+    - NEXTAUTH_URL=http://localhost:8080
+    - MEILI_ADDR=http://karakeep-meilisearch:7700
+    - BROWSER_WEB_URL=http://karakeep-chrome:9222
+  X-REF-KARAKEEP-MEILI-ENV:
+    - MEILI_MASTER_KEY=${KARAKEEP_MEILI_SECRET:?}
+  X-REF-KARAKEEP-PORTS: 8080:3000
+  X-REF-KARAKEEP-VOLUME:
+    - ${KARAKEEP_DATA:?}\app-data:/data
+  X-REF-KARAKEEP-MEILI-VOLUME:
+    - ${KARAKEEP_DATA:?}\meili-data:/meili_data
+
+services:
+  karakeep-app:
+    X-REF-FUNCT-TEMPLATE-KARAKEEP(X-REF-KARAKEEP-CONTAINER-NAME,X-REF-KARAKEEP-ENV,X-REF-KARAKEEP-PORTS,X-REF-KARAKEEP-VOLUME):
+    networks:
+      - karakeep_network
+  karakeep-chrome:
+    X-REF-FUNCT-TEMPLATE-CHROME-ALPINE("karakeep-chrome"):
+    networks:
+      - karakeep_network
+  karakeep-meili:
+    X-REF-FUNCT-TEMPLATE-MEILISEARCH("karakeep-meilisearch",X-REF-KARAKEEP-MEILI-ENV,X-REF-KARAKEEP-MEILI-VOLUME):
+    networks:
+      - karakeep_network
+networks:
+  karakeep_network:
+    name: karakeep_network
