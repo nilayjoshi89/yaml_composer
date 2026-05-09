@@ -43,7 +43,7 @@ class _Base:
 
 
 # ---------------------------------------------------------------------------
-# README Simple Examples 1–5
+# README Simple Examples 1-5
 # ---------------------------------------------------------------------------
 
 
@@ -106,14 +106,10 @@ class TestReadmeSimpleExamples(_Base):
                         "enabled": True,
                     }
                 },
-                "services": {
-                    "api": {"X-REF-ServiceTemplate('v2.1')": None}
-                },
+                "services": {"api": {"X-REF-ServiceTemplate('v2.1')": None}},
             }
         )
-        self.run(
-            {"services": {"api": {"version": "v2.1", "enabled": True}}}
-        )
+        self.run({"services": {"api": {"version": "v2.1", "enabled": True}}})
 
     def test_example4_function_multiple_arguments(self) -> None:
         # README Example 4
@@ -149,25 +145,17 @@ class TestReadmeSimpleExamples(_Base):
         # README Example 5 — list ref must be a dict VALUE, not a dict key
         self.create_generator(
             {
-                "X-OVERRIDE": {
-                    "X-REF-PERMISSIONS": ["read", "write", "delete"]
-                },
-                "roles": {
-                    "admin": {"permissions": "X-REF-PERMISSIONS"}
-                },
+                "X-OVERRIDE": {"X-REF-PERMISSIONS": ["read", "write", "delete"]},
+                "roles": {"admin": {"permissions": "X-REF-PERMISSIONS"}},
             }
         )
         self.run(
-            {
-                "roles": {
-                    "admin": {"permissions": ["read", "write", "delete"]}
-                }
-            }
+            {"roles": {"admin": {"permissions": ["read", "write", "delete"]}}}
         )
 
 
 # ---------------------------------------------------------------------------
-# README Advanced Examples 6–8
+# README Advanced Examples 6-8
 # ---------------------------------------------------------------------------
 
 
@@ -222,7 +210,7 @@ class TestReadmeAdvancedExamples(_Base):
                     "X-REF-DB-PASSWORD": "dev_password",
                 },
                 "database": {
-                    "X-REF-DATABASE-CONFIG(X-REF-DB-NAME, X-REF-DB-HOST, X-REF-DB-USER, X-REF-DB-PASSWORD)": None  # noqa: E501
+                    "X-REF-DATABASE-CONFIG(X-REF-DB-NAME, X-REF-DB-HOST, X-REF-DB-USER, X-REF-DB-PASSWORD)": None
                 },
             },
             ref_files={
@@ -263,7 +251,7 @@ class TestReadmeAdvancedExamples(_Base):
                     "X-REF-DB-PASSWORD": "${PROD_DB_PASSWORD:?error}",
                 },
                 "database": {
-                    "X-REF-DATABASE-CONFIG(X-REF-DB-NAME, X-REF-DB-HOST, X-REF-DB-USER, X-REF-DB-PASSWORD)": None  # noqa: E501
+                    "X-REF-DATABASE-CONFIG(X-REF-DB-NAME, X-REF-DB-HOST, X-REF-DB-USER, X-REF-DB-PASSWORD)": None
                 },
             },
             ref_files={
@@ -304,9 +292,7 @@ class TestReadmeAdvancedExamples(_Base):
                     }
                 },
                 "services": {
-                    "processor": {
-                        "X-REF-ServiceDef('prod', 'data:v2.1')": None
-                    }
+                    "processor": {"X-REF-ServiceDef('prod', 'data:v2.1')": None}
                 },
             }
         )
@@ -391,7 +377,10 @@ def _postgres_service(
         "volumes": volumes,
         "networks": [network],
         "healthcheck": {
-            "test": ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"],
+            "test": [
+                "CMD-SHELL",
+                "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB",
+            ],
             "interval": "10s",
             "timeout": "5s",
             "retries": 5,
@@ -418,15 +407,15 @@ class TestReadmeRealWorldDockerCompose(_Base):
                 "X-OVERRIDE": overrides,
                 "services": {
                     "db-one": {
-                        "X-REF-FUNCT-TEMPLATE-POSTGRES(X-REF-DB1-CONTAINER-NAME,X-REF-DB1-ENV,X-REF-DB1-PORTS,X-REF-DB1-VOLUME)": None,  # noqa: E501
+                        "X-REF-FUNCT-TEMPLATE-POSTGRES(X-REF-DB1-CONTAINER-NAME,X-REF-DB1-ENV,X-REF-DB1-PORTS,X-REF-DB1-VOLUME)": None,
                         "networks": ["pg_service_network"],
                     },
                     "db-two": {
-                        "X-REF-FUNCT-TEMPLATE-POSTGRES(X-REF-DB2-CONTAINER-NAME,X-REF-DB2-ENV,X-REF-DB2-PORTS,X-REF-DB2-VOLUME)": None,  # noqa: E501
+                        "X-REF-FUNCT-TEMPLATE-POSTGRES(X-REF-DB2-CONTAINER-NAME,X-REF-DB2-ENV,X-REF-DB2-PORTS,X-REF-DB2-VOLUME)": None,
                         "networks": ["pg_service_network"],
                     },
                     "pg_admin": {
-                        "X-REF-FUNCT-TEMPLATE-PG-ADMIN(X-REF-PGADMIN-CONTAINER-NAME,X-REF-PGADMIN-ENV,X-REF-PGADMIN-PORTS,X-REF-PGADMIN-VOLUME)": None,  # noqa: E501
+                        "X-REF-FUNCT-TEMPLATE-PG-ADMIN(X-REF-PGADMIN-CONTAINER-NAME,X-REF-PGADMIN-ENV,X-REF-PGADMIN-PORTS,X-REF-PGADMIN-VOLUME)": None,
                         "networks": ["pg_service_network"],
                     },
                 },

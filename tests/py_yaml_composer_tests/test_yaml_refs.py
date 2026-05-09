@@ -536,3 +536,62 @@ class TestYamlReferences:
 
         # assert
         self.verify_no_diff(expected_output)
+
+    def test_undefined_dict_value_ref_raises_error(self) -> None:
+        # arrange
+        input_data: dict[str, Any] = {
+            "Node1": "X-REF-Undefined",
+        }
+        self.create_generator(input_data)
+
+        # act
+        with pytest.raises(ValueError) as exc_info:
+            self.generator.start(MockFileHelper.input_file)
+
+        # assert
+        assert exc_info.type is ValueError
+        assert str(exc_info.value) == "Reference not found - X-REF-Undefined"
+
+    def test_undefined_list_ref_raises_error(self) -> None:
+        # arrange
+        input_data: dict[str, Any] = {
+            "Node1": ["X-REF-Undefined"],
+        }
+        self.create_generator(input_data)
+
+        # act
+        with pytest.raises(ValueError) as exc_info:
+            self.generator.start(MockFileHelper.input_file)
+
+        # assert
+        assert exc_info.type is ValueError
+        assert str(exc_info.value) == "Reference not found - X-REF-Undefined"
+
+    def test_ref_dict_replacement_in_list_value(self) -> None:
+        # arrange - dict reference in a single-element list should replace list with dict
+        input_data: dict[str, Any] = {
+            "X-OVERRIDE": {
+                "X-REF-ENV-CONFIG": {
+                    "DB": "mydb",
+                    "USER": "admin",
+                    "PASSWORD": "secret",
+                },
+            },
+            "Node1": "Value1",
+            "Node2": ["X-REF-ENV-CONFIG"],
+        }
+        expected_output: dict[str, Any] = {
+            "Node1": "Value1",
+            "Node2": {
+                "DB": "mydb",
+                "USER": "admin",
+                "PASSWORD": "secret",
+            },
+        }
+        self.create_generator(input_data)
+
+        # act
+        self.generator.start(MockFileHelper.input_file)
+
+        # assert
+        self.verify_no_diff(expected_output)

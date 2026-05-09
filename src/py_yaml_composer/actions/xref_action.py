@@ -11,21 +11,32 @@ class YamlXRefAction(YamlActionBase):
     ) -> None:
         if isinstance(data, dict):
             while True:
-                items_to_iterate = [
-                    (key, val)
-                    for (key, val) in data.items()
-                    if YamlXRefAction.is_ref_node(key)
-                    or YamlXRefAction.is_ref_node(val)
-                ]
+                items_to_iterate = []
+                for key, val in data.items():
+                    if YamlXRefAction.is_ref_node(key):
+                        items_to_iterate.append((key, val, "key"))
+                    elif isinstance(val, str) and YamlXRefAction.is_ref_node(val):
+                        items_to_iterate.append((key, val, "value"))
+                    elif (
+                        isinstance(val, list)
+                        and len(val) == 1
+                        and YamlXRefAction.is_ref_node(val[0])
+                    ):
+                        # Only handle list->dict replacement at dict level
+                        ref_val = context.ref_data.get(val[0])
+                        if isinstance(ref_val, dict):
+                            items_to_iterate.append((key, val, "list_value"))
 
                 if not items_to_iterate:
                     break
 
-                for key, val in items_to_iterate:
-                    if YamlXRefAction.is_ref_node(key):
+                for key, val, item_type in items_to_iterate:
+                    if item_type == "key":
                         data.pop(key)
                         self.__replace_dict_key(data, key, context)
-                    else:
+                    elif item_type == "list_value":
+                        self.__replace_list_value(data, key, context)
+                    else:  # value
                         self.__replace_dict_value(val, data, key, context)
             return
 
@@ -74,6 +85,26 @@ class YamlXRefAction(YamlActionBase):
 
         parent[key] = copy.deepcopy(new_val)
 
+    def __replace_list_value(
+        self, parent: dict[Any, Any], key: str, context: ActionContext
+    ) -> None:
+        """Replace a list containing a single ref with the ref's value if it's a dict."""
+        list_val = parent[key]
+        if not isinstance(list_val, list) or len(list_val) != 1:
+            return
+
+        ref_node = list_val[0]
+        if not YamlXRefAction.is_ref_node(ref_node):
+            return
+
+        new_val = context.ref_data.get(ref_node)
+        if new_val is None:
+            raise ValueError(f"Reference not found - {ref_node}")
+
+        # Only replace with dict values - keep lists and scalars as-is
+        if isinstance(new_val, dict):
+            parent[key] = copy.deepcopy(new_val)
+
     def __replace_list(
         self, node: Any, parent: Any, context: ActionContext
     ) -> None:
@@ -93,3 +124,12 @@ class YamlXRefAction(YamlActionBase):
     @staticmethod
     def is_ref_node(key: str) -> bool:
         return key is not None and str(key).startswith("X-REF")
+
+    @staticmethod
+    def _is_list_with_single_ref(val: Any) -> bool:
+        """Check if a value is a list with exactly one ref node."""
+        return (
+            isinstance(val, list)
+            and len(val) == 1
+            and YamlXRefAction.is_ref_node(val[0])
+        )
