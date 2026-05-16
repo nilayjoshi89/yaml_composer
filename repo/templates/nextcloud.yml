@@ -1,0 +1,33 @@
+### SAMPLE ARGUMENTS
+# X-REF-NEXTCLOUD-ENV:
+#   - POSTGRES_HOST=db
+#   - POSTGRES_DB=nextcloud-db
+#   - POSTGRES_USER=nextcloud_user
+#   - POSTGRES_PASSWORD=nextcloud_password
+#   - NEXTCLOUD_ADMIN_USER=admin
+#   - NEXTCLOUD_ADMIN_PASSWORD=admin_password
+#   - REDIS_HOST=cache
+#   - REDIS_HOST_PORT=6379
+#   - REDIS_HOST_PASSWORD=redis_password
+# X-REF-NEXTCLOUD-PORTS: 8080:80
+# X-REF-NEXTCLOUD-VOLUME:
+#   - ${NEXTCLOUD_DATA:?}:/var/www/html
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-NEXTCLOUD("nextcloud",X-REF-NEXTCLOUD-ENV,X-REF-NEXTCLOUD-PORTS,X-REF-NEXTCLOUD-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-NEXTCLOUD:
+  X-REF-BASE-TEMPLATE-ENV:
+  X-REF-BASE-TEMPLATE-RESTART:
+  X-REF-BASE-TEMPLATE-SECURITY-OPT:
+  image: X-REF-IMAGE-NEXTCLOUD
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}"
+  volumes:
+    - "{X-ARG-4}"
+  pids_limit: 100
+  mem_limit: 2g
+  cpus: "1.0"

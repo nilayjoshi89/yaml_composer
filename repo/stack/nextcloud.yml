@@ -1,0 +1,57 @@
+# Required environment variables:
+#   NEXTCLOUD_APP_USER        - Nextcloud admin username
+#   NEXTCLOUD_APP_PASSWORD    - Nextcloud admin password
+#   NEXTCLOUD_CACHE_PASSWORD  - Redis password for the Nextcloud cache
+#   NEXTCLOUD_DB_USER         - PostgreSQL database username
+#   NEXTCLOUD_DB_PASSWORD     - PostgreSQL database password
+#   NEXTCLOUD_DATA            - Host path prefix for persistent data volumes (e.g. /mnt/data/nextcloud)
+#                               Subdirectories app_data and db_data will be created under this path
+
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/nextcloud.yml
+  - templates/redis.yml
+  - templates/postgres.yml
+X-OUTPUT: services/nextcloud.yml
+X-OVERRIDE:
+  X-REF-NEXTCLOUD-ENV:
+    - POSTGRES_HOST=nextcloud-db
+    - X-REF-NEXTCLOUD-DB-ENV
+    - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_APP_USER:?}
+    - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_APP_PASSWORD:?}
+    - REDIS_HOST=nextcloud-cache
+    - REDIS_HOST_PORT=6379
+    - REDIS_HOST_PASSWORD=${NEXTCLOUD_CACHE_PASSWORD:?}
+  X-REF-NEXTCLOUD-PORTS: 8080:80
+  X-REF-NEXTCLOUD-VOLUME:
+    - ${NEXTCLOUD_DATA:?}/app_data:/var/www/html
+  X-REF-NEXTCLOUD-REDIS-PORTS: []
+  X-REF-NEXTCLOUD-REDIS-VOLUME: []
+  X-REF-NEXTCLOUD-DB-ENV:
+    - POSTGRES_DB=nextcloud_db
+    - POSTGRES_USER=${NEXTCLOUD_DB_USER:?}
+    - POSTGRES_PASSWORD=${NEXTCLOUD_DB_PASSWORD:?}
+  X-REF-NEXTCLOUD-DB-PORTS: []
+  X-REF-NEXTCLOUD-DB-VOLUME:
+    - ${NEXTCLOUD_DATA:?}/db_data:/var/lib/postgresql
+services:
+  nextcloud-app:
+    X-REF-FUNCT-TEMPLATE-NEXTCLOUD("nextcloud-app",X-REF-NEXTCLOUD-ENV,X-REF-NEXTCLOUD-PORTS,X-REF-NEXTCLOUD-VOLUME):
+    depends_on:
+      nextcloud-cache:
+        condition: service_healthy
+      nextcloud-db:
+        condition: service_healthy
+    networks:
+      - nextcloud_network
+  nextcloud-cache:
+    X-REF-FUNCT-TEMPLATE-REDIS("nextcloud-cache",X-REF-NEXTCLOUD-REDIS-PORTS,X-REF-NEXTCLOUD-REDIS-VOLUME,${NEXTCLOUD_CACHE_PASSWORD:?}):
+    networks:
+      - nextcloud_network
+  nextcloud-db:
+    X-REF-FUNCT-TEMPLATE-POSTGRES(nextcloud-db,X-REF-NEXTCLOUD-DB-ENV,X-REF-NEXTCLOUD-DB-PORTS,X-REF-NEXTCLOUD-DB-VOLUME):
+    networks:
+      - nextcloud_network
+networks:
+  nextcloud_network:

@@ -1,0 +1,89 @@
+services:
+  nextcloud-app:
+    image: nextcloud
+    container_name: nextcloud-app
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - POSTGRES_HOST=nextcloud-db
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_APP_USER:?}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_APP_PASSWORD:?}
+      - REDIS_HOST=nextcloud-cache
+      - REDIS_HOST_PORT=6379
+      - REDIS_HOST_PASSWORD=${NEXTCLOUD_CACHE_PASSWORD:?}
+      - POSTGRES_DB=nextcloud_db
+      - POSTGRES_USER=${NEXTCLOUD_DB_USER:?}
+      - POSTGRES_PASSWORD=${NEXTCLOUD_DB_PASSWORD:?}
+    ports:
+      - 8080:80
+    volumes:
+      - ${NEXTCLOUD_DATA:?}/app_data:/var/www/html
+    depends_on:
+      nextcloud-cache:
+        condition: service_healthy
+      nextcloud-db:
+        condition: service_healthy
+    networks:
+      - nextcloud_network
+    pids_limit: 100
+    mem_limit: 2g
+    cpus: "1.0"
+    security_opt:
+      - no-new-privileges:true
+  nextcloud-cache:
+    image: redis:alpine
+    container_name: nextcloud-cache
+    command: redis-server --requirepass "${NEXTCLOUD_CACHE_PASSWORD:?}"
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+    ports: []
+    volumes: []
+    networks:
+      - nextcloud_network
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - -a
+        - ping
+        - ${NEXTCLOUD_CACHE_PASSWORD:?}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: "1.0"
+  nextcloud-db:
+    image: postgres:18.3-alpine
+    container_name: nextcloud-db
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - POSTGRES_DB=nextcloud_db
+      - POSTGRES_USER=${NEXTCLOUD_DB_USER:?}
+      - POSTGRES_PASSWORD=${NEXTCLOUD_DB_PASSWORD:?}
+    ports: []
+    volumes:
+      - ${NEXTCLOUD_DATA:?}/db_data:/var/lib/postgresql
+    networks:
+      - nextcloud_network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    shm_size: 128mb
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 1g
+    cpus: "1.0"
+networks:
+  nextcloud_network: null

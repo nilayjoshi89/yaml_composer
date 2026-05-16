@@ -1,0 +1,24 @@
+### SAMPLE ARGUMENTS
+# X-REF-REDIS-PORTS: 6379:6379
+# X-REF-REDIS-VOLUME:
+#   - ${REDIS_DATA:?}:/data
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-REDIS("redis",X-REF-REDIS-PORTS,X-REF-REDIS-VOLUME,"supersecurepassword"):
+###
+
+X-REF-FUNCT-TEMPLATE-REDIS:
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-REDIS
+  container_name: "{X-ARG-1}"
+  ports:
+    - "{X-ARG-2}"
+  volumes:
+    - "{X-ARG-3}"
+  # command: redis-server --appendonly yes --requirepass yourpasswordhere
+  command: redis-server --requirepass "{X-ARG-4}"
+  healthcheck:
+    test: ["CMD", "redis-cli", "-a", "{X-ARG-4}", "ping"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 10s

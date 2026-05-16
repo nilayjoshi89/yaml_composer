@@ -1,20 +1,24 @@
-X-REF-BASE-TEMPLATE:
+X-REF-BASE-TEMPLATE-ENV:
   environment:
     - TZ=Asia/Singapore
+X-REF-BASE-TEMPLATE-RESTART:
   restart: unless-stopped
+X-REF-BASE-TEMPLATE-SECURITY-OPT:
   security_opt:
     - no-new-privileges:true
+X-REF-BASE-TEMPLATE-LIMITS:
   pids_limit: 100
   mem_limit: 512m #b, k/kb, m/mb, or g/gb
   cpus: "1.0"
+X-REF-BASE-TEMPLATE:
+  X-REF-BASE-TEMPLATE-ENV:
+  X-REF-BASE-TEMPLATE-RESTART:
+  X-REF-BASE-TEMPLATE-SECURITY-OPT:
+  X-REF-BASE-TEMPLATE-LIMITS:
 
 X-REF-BASE-READONLY-TEMPLATE:
-  environment:
-    - TZ=Asia/Singapore
-  restart: unless-stopped
   read_only: true
-  security_opt:
-    - no-new-privileges:true
-  pids_limit: 100
-  mem_limit: 512m #b, k/kb, m/mb, or g/gb
-  cpus: "1.0"
+  X-REF-BASE-TEMPLATE-ENV:
+  X-REF-BASE-TEMPLATE-RESTART:
+  X-REF-BASE-TEMPLATE-SECURITY-OPT:
+  X-REF-BASE-TEMPLATE-LIMITS:
