@@ -1,0 +1,65 @@
+api:
+  insecure: false
+  dashboard: false
+  debug: false
+entryPoints:
+  https:
+    address: ":443"
+    proxyProtocol:
+      trustedIPs:
+        - "172.18.0.0/16" # Docker bridge network
+        - "172.29.0.0/16" # Docker custom network
+        - "192.168.1.0/24" # Traefik host subnet
+    forwardedHeaders:
+      trustedIPs:
+        - "172.18.0.0/16" # Docker bridge network
+        - "172.29.0.0/16" # Docker custom network
+        - "192.168.1.0/24" # Traefik host subnet
+    http:
+      tls:
+        certResolver: cloudflare
+      middlewares:
+        - external-middleware@file
+serversTransport:
+  insecureSkipVerify: false
+providers:
+  file:
+    filename: /etc/traefik/dynamic_config.yml
+    watch: true
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: your-email@example.com
+      storage: acme.json
+      caServer: https://acme-v02.api.letsencrypt.org/directory # prod (default)
+      # caServer: https://acme-staging-v02.api.letsencrypt.org/directory # staging
+      dnsChallenge:
+        provider: cloudflare
+        #disablePropagationCheck: true # uncomment if you have issues pulling certificates through cloudflare
+        #delayBeforeCheck: 60s # uncomment along with disablePropagationCheck if needed
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+log:
+  level: INFO
+  filePath: "/accesslog/traefik.log"
+  format: "json"
+accessLog:
+  filePath: "/accesslog/access.log"
+  format: "json"
+  filters:
+    statusCodes:
+      - "300-600"
+    retryAttempts: true
+    minDuration: "10ms"
+  fields:
+    defaultMode: keep
+    names:
+      ClientUsername: keep
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: redact
+        Authorization: drop
+        Content-Type: keep
+        CF-Connecting-IP: keep

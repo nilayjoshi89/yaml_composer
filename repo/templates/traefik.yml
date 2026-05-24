@@ -1,0 +1,25 @@
+### SAMPLE ARGUMENTS
+# X-REF-TRAEFIK-CONTAINER: traefik_ext
+# X-REF-TRAEFIK-ENV:
+#   - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_dns_api_token
+# X-REF-TRAEFIK-PORTS: ${TRAEFIK_HTTPS_PORT:?}:443
+# X-REF-TRAEFIK-VOLUME:
+#   - ${TRAEFIK_DATA:?}/dynamic_config.yml:/etc/traefik/dynamic_config.yml
+#   - ${TRAEFIK_DATA:?}/static_config.yml:/etc/traefik/traefik.yml:ro
+#   - ${TRAEFIK_DATA:?}/acme.json:/acme.json
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-TRAEFIK(X-REF-TRAEFIK-CONTAINER,X-REF-TRAEFIK-ENV,X-REF-TRAEFIK-PORTS,X-REF-TRAEFIK-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-TRAEFIK:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-TRAEFIK
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}"
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - "{X-ARG-4}"

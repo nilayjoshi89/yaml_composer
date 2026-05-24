@@ -5,3 +5,4 @@ X-REF-IMAGE-CHROME-ALPINE: gcr.io/zenika-hub/alpine-chrome:124
 X-REF-IMAGE-MEILISEARCH: getmeili/meilisearch:v1.41.0
 X-REF-IMAGE-NEXTCLOUD: nextcloud
 X-REF-IMAGE-REDIS: redis:alpine
+X-REF-IMAGE-TRAEFIK: traefik:v3.6

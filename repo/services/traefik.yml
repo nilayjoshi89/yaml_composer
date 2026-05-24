@@ -1,0 +1,29 @@
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: ${TRAEFIK_CONTAINER:?}
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_api_token
+    ports:
+      - ${TRAEFIK_HTTPS_PORT:?}:443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${TRAEFIK_DATA:?}/dynamic_config.yml:/etc/traefik/dynamic_config.yml
+      - ${TRAEFIK_DATA:?}/static_config.yml:/etc/traefik/traefik.yml:ro
+      - ${TRAEFIK_DATA:?}/acme.json:/acme.json
+    networks:
+      - traefik_network
+    secrets:
+      - cf_api_token
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: "1.0"
+networks:
+  traefik_network: null
+secrets:
+  cf_api_token:
+    file: ${TRAEFIK_CF_TOKEN_FILE:?}
