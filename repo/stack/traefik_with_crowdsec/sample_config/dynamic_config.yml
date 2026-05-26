@@ -1,0 +1,55 @@
+http:
+  middlewares:
+    authelia_middleware:
+      forwardAuth:
+        address: http://authelia:9091/api/authz/forward-auth
+        trustForwardHeader: true
+        authResponseHeaders:
+          - Remote-User
+          - Remote-Groups
+          - Remote-Name
+          - Remote-Email
+
+    crowdsec:
+      plugin:
+        bouncer:
+          enabled: true
+          logLevel: INFO
+          crowdsecMode: live
+          crowdsecLapiKey: your-crowdsec-lapi-key # generate with: cscli bouncers add <bouncer_name>
+          crowdsecLapiHost: crowdsec:8080
+
+    ip-whitelist-external:
+      IPAllowList:
+        sourceRange:
+          - "172.18.0.0/16" # Docker bridge network
+          - "172.29.0.0/16" # Docker custom network
+
+    ip-whitelist-internal:
+      IPAllowList:
+        sourceRange:
+          - "172.18.0.0/16" # Docker bridge network
+          - "172.29.0.0/16" # Docker custom network
+          - "192.168.1.0/24" # Traefik host subnet
+
+    external-middleware:
+      chain:
+        middlewares:
+          - ip-whitelist-external
+          - crowdsec
+
+  routers:
+    # Define a router to handle incoming requests
+    my-app-router:
+      rule: "Host(`your-service.example.com`)"
+      entryPoints:
+        - https
+      service: my-app-service # Target service
+
+  services:
+    # Define the backend service destination
+    my-app-service:
+      loadBalancer:
+        servers:
+          - url: "http://my-app:80" # Your application's container name/IP and port
+          # - url: "http://192.168.1.10:8080" # Second instance for load balancing

@@ -1,0 +1,44 @@
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/traefik.yml
+  - templates/crowdsec.yml
+X-OUTPUT: services/traefik_crowdsec.yml
+X-OVERRIDE:
+  X-REF-TRAEFIK-CONTAINER: ${TRAEFIK_CONTAINER:?}
+  X-REF-TRAEFIK-ENV:
+    - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_api_token
+  X-REF-TRAEFIK-PORTS: []
+  X-REF-TRAEFIK-VOLUME:
+    - ${TRAEFIK_DATA:?}/dynamic_config.yml:/etc/traefik/dynamic_config.yml
+    - ${TRAEFIK_DATA:?}/static_config.yml:/etc/traefik/traefik.yml:ro
+    - ${TRAEFIK_DATA:?}/acme.json:/acme.json
+    - ${TRAEFIK_DATA:?}/logs:/accesslog
+  X-REF-CROWDSEC-CONTAINER: crowdsec
+  X-REF-CROWDSEC-ENV:
+    - COLLECTIONS="crowdsecurity/traefik"
+  X-REF-CROWDSEC-VOLUME:
+    - ${CROWDSEC_DATA:?}/db/:/var/lib/crowdsec/data/
+    - ${CROWDSEC_DATA:?}/config/:/etc/crowdsec/
+    - ${TRAEFIK_DATA:?}/logs/:/var/log/traefik/:ro
+services:
+  traefik:
+    X-REF-FUNCT-TEMPLATE-TRAEFIK(X-REF-TRAEFIK-CONTAINER,X-REF-TRAEFIK-ENV,X-REF-TRAEFIK-PORTS,X-REF-TRAEFIK-VOLUME):
+    profiles: [all, traefik]
+    secrets:
+      - cf_api_token
+    networks:
+      - traefik_network
+  crowdsec:
+    X-REF-FUNCT-TEMPLATE-CROWDSEC(X-REF-CROWDSEC-CONTAINER,X-REF-CROWDSEC-ENV,X-REF-CROWDSEC-VOLUME):
+    profiles: [all, traefik]
+    depends_on:
+      - traefik
+    networks:
+      - traefik_network
+networks:
+  traefik_network:
+
+secrets:
+  cf_api_token:
+    file: ${TRAEFIK_CF_TOKEN_FILE:?}

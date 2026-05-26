@@ -1,0 +1,21 @@
+### SAMPLE ARGUMENTS
+# X-REF-CROWDSEC-CONTAINER: crowdsec
+# X-REF-CROWDSEC-ENV:
+#   - COLLECTIONS="crowdsecurity/traefik"
+# X-REF-CROWDSEC-VOLUME:
+#     - ${CROWDSEC_DATA:?}/db/:/var/lib/crowdsec/data/
+#     - ${CROWDSEC_DATA:?}/config/:/etc/crowdsec/
+#     - ${TRAEFIK_DATA:?}/logs/:/var/log/traefik/:ro
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-CROWDSEC(X-REF-CROWDSEC-CONTAINER,X-REF-CROWDSEC-ENV,X-REF-CROWDSEC-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-CROWDSEC:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-CROWDSEC
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  volumes:
+    - "{X-ARG-3}"

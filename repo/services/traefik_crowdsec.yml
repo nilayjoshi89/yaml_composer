@@ -1,0 +1,55 @@
+services:
+  traefik:
+    profiles:
+      - all
+      - traefik
+    image: traefik:v3.6
+    container_name: ${TRAEFIK_CONTAINER:?}
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_api_token
+    ports: []
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${TRAEFIK_DATA:?}/dynamic_config.yml:/etc/traefik/dynamic_config.yml
+      - ${TRAEFIK_DATA:?}/static_config.yml:/etc/traefik/traefik.yml:ro
+      - ${TRAEFIK_DATA:?}/acme.json:/acme.json
+      - ${TRAEFIK_DATA:?}/logs:/accesslog
+    networks:
+      - traefik_network
+    secrets:
+      - cf_api_token
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: "1.0"
+  crowdsec:
+    profiles:
+      - all
+      - traefik
+    image: crowdsecurity/crowdsec:v1.7.8
+    container_name: crowdsec
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - COLLECTIONS="crowdsecurity/traefik"
+    volumes:
+      - ${CROWDSEC_DATA:?}/db/:/var/lib/crowdsec/data/
+      - ${CROWDSEC_DATA:?}/config/:/etc/crowdsec/
+      - ${TRAEFIK_DATA:?}/logs/:/var/log/traefik/:ro
+    depends_on:
+      - traefik
+    networks:
+      - traefik_network
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: "1.0"
+networks:
+  traefik_network: null
+secrets:
+  cf_api_token:
+    file: ${TRAEFIK_CF_TOKEN_FILE:?}
