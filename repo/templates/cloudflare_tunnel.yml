@@ -1,0 +1,18 @@
+### SAMPLE ARGUMENTS
+# X-REF-CF-TUNNEL-CONTAINER: cloudflared
+# X-REF-CF-TUNNEL-TOKEN-FILE: /run/secrets/cf_token
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-CLOUDFLARE-TUNNEL(X-REF-CF-TUNNEL-CONTAINER,X-REF-CF-TUNNEL-TOKEN-FILE):
+###
+
+X-REF-FUNCT-TEMPLATE-CLOUDFLARE-TUNNEL:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-CLOUDFLARED
+  container_name: "{X-ARG-1}"
+  command:
+    - tunnel
+    - --no-autoupdate
+    - run
+    - --token-file
+    - "{X-ARG-2}"

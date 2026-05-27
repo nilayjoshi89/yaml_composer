@@ -7,3 +7,4 @@ X-REF-IMAGE-NEXTCLOUD: nextcloud
 X-REF-IMAGE-REDIS: redis:alpine
 X-REF-IMAGE-TRAEFIK: traefik:v3.6
 X-REF-IMAGE-CROWDSEC: crowdsecurity/crowdsec:v1.7.8
+X-REF-IMAGE-CLOUDFLARED: cloudflare/cloudflared:2026.5.1

@@ -1,0 +1,25 @@
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/cloudflare_tunnel.yml
+X-OUTPUT: services/cloudflare_tunnel.yml
+X-OVERRIDE:
+  X-REF-CF-TUNNEL-CONTAINER: cloudflared
+  X-REF-CF-TUNNEL-TOKEN-FILE: /run/secrets/cf_token
+
+services:
+  cloudflared:
+    X-REF-FUNCT-TEMPLATE-CLOUDFLARE-TUNNEL(X-REF-CF-TUNNEL-CONTAINER,X-REF-CF-TUNNEL-TOKEN-FILE):
+    profiles: [all, cloudflare]
+    networks:
+      - traefik_network
+    secrets:
+      - cf_token
+
+networks:
+  traefik_network:
+    external: true
+
+secrets:
+  cf_token:
+    file: ${TRAEFIK_CF_TOKEN_FILE:?}
