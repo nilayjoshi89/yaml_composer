@@ -1,0 +1,23 @@
+### SAMPLE ARGUMENTS
+# X-REF-AUTHELIA-CONTAINER: authelia
+# X-REF-AUTHELIA-ENV:
+#   - TZ=Asia/Singapore
+#   - AUTHELIA_JWT_SECRET=your-jwt-secret
+#   - AUTHELIA_SESSION_SECRET=your-session-secret
+# X-REF-AUTHELIA-VOLUME:
+#   - ${AUTHELIA_DATA:?}:/config
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-AUTHELIA(X-REF-AUTHELIA-CONTAINER,X-REF-AUTHELIA-ENV,X-REF-AUTHELIA-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-AUTHELIA:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-AUTHELIA
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  volumes:
+    - "{X-ARG-3}"
+  healthcheck:
+    disable: true

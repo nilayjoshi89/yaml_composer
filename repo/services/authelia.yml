@@ -1,0 +1,25 @@
+services:
+  authelia:
+    profiles:
+      - all
+      - authelia
+    image: authelia/authelia:latest
+    container_name: ${AUTHELIA_CONTAINER:?}
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+    volumes:
+      - ${AUTHELIA_DATA:?}:/config
+    networks:
+      authelia_network: null
+    healthcheck:
+      disable: true
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: "1.0"
+networks:
+  authelia_network:
+    name: authelia_network
+    external: true

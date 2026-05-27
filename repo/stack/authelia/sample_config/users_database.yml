@@ -1,0 +1,24 @@
+###############################################################
+#                         Users Database                      #
+###############################################################
+
+# This file can be used if you do not have an LDAP set up.
+
+# List of users
+users:
+  admin:
+    disabled: false
+    displayname: "Administrator"
+    # Password hash: Generate with: docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password 'your-password'
+    password: "$argon2id$v=19$m=65540,t=3,p=4$YOUR_HASH_HERE_REPLACE_WITH_GENERATED_HASH" # yamllint disable-line rule:line-length
+    email: "admin@example.com"
+    groups:
+      - "admins"
+  user:
+    disabled: false
+    displayname: "Regular User"
+    # Password hash: Generate with: docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password 'your-password'
+    password: "$argon2id$v=19$m=65540,t=3,p=4$YOUR_HASH_HERE_REPLACE_WITH_GENERATED_HASH" # yamllint disable-line rule:line-length
+    email: "user@example.com"
+    groups:
+      - "users"

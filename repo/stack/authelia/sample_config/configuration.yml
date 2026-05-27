@@ -1,0 +1,71 @@
+###############################################################
+#                   Authelia configuration                    #
+###############################################################
+
+server:
+  address: "tcp://:9091"
+
+log:
+  level: "debug"
+
+totp:
+  issuer: "authelia.com"
+
+identity_validation:
+  reset_password:
+    jwt_secret: "REPLACE_WITH_YOUR_JWT_SECRET_MIN_32_CHARS"
+
+# duo_api:
+#  hostname: api-123456789.example.com
+#  integration_key: ABCDEF
+#  # This secret can also be set using the env variables AUTHELIA_DUO_API_SECRET_KEY_FILE
+#  secret_key: 1234567890abcdefghifjkl
+
+authentication_backend:
+  file:
+    path: "/config/users_database.yml"
+
+access_control:
+  default_policy: "deny"
+  rules:
+    # Rules applied to everyone
+    - domain: "public.yourdomain.com"
+      policy: "bypass"
+    - domain: "traefik.yourdomain.com"
+      policy: "one_factor"
+    - domain: "app.yourdomain.com"
+      policy: "two_factor"
+
+session:
+  # This secret can also be set using the env variables AUTHELIA_SESSION_SECRET_FILE
+  secret: "REPLACE_WITH_YOUR_SESSION_SECRET_MIN_32_CHARS"
+
+  cookies:
+    - name: "authelia_session"
+      domain: "yourdomain.com" # Should match whatever your root protected domain is
+      authelia_url: "https://authelia.yourdomain.com"
+      expiration: "1 hour"
+      inactivity: "5 minutes"
+
+  # redis:
+  #   host: "redis"
+  #   port: 6379
+  #   # This secret can also be set using the env variables AUTHELIA_SESSION_REDIS_PASSWORD_FILE
+  #   # password: authelia
+
+regulation:
+  max_retries: 3
+  find_time: "2 minutes"
+  ban_time: "5 minutes"
+
+storage:
+  encryption_key: "REPLACE_WITH_YOUR_ENCRYPTION_KEY_MIN_16_CHARS_RANDOM"
+  local:
+    path: "/config/db.sqlite3"
+# notifier:
+#   smtp:
+#     username: "test"
+#     # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
+#     password: "password"
+#     address: "smtp://mail.example.com:25"
+#     sender: "admin@example.com"

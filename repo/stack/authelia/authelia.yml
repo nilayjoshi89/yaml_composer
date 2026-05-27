@@ -1,0 +1,24 @@
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/authelia.yml
+X-OUTPUT: services/authelia.yml
+X-OVERRIDE:
+  X-REF-AUTHELIA-CONTAINER: ${AUTHELIA_CONTAINER:?}
+  X-REF-AUTHELIA-ENV: []
+  X-REF-AUTHELIA-VOLUME:
+    - ${AUTHELIA_DATA:?}:/config
+
+services:
+  authelia:
+    X-REF-FUNCT-TEMPLATE-AUTHELIA(X-REF-AUTHELIA-CONTAINER,X-REF-AUTHELIA-ENV,X-REF-AUTHELIA-VOLUME):
+    profiles:
+      - all
+      - authelia
+    networks:
+      authelia_network: null
+
+networks:
+  authelia_network:
+    name: authelia_network
+    external: true
