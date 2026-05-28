@@ -1,0 +1,54 @@
+# Required environment variables:
+#   GHOST_DB_ROOT_PASSWORD      - MySQL root password
+#   GHOST_DB_PASSWORD           - MySQL password for the ghost application user
+#   GHOST_MAILGUN_SMTP_LOGIN    - Mailgun SMTP login
+#   GHOST_MAILGUN_SMTP_PASSWORD - Mailgun SMTP password
+#   GHOST_MAIL_FROM             - Sender address for Ghost mail (e.g. postmaster@example.com)
+#   GHOST_URL                   - Ghost site hostname without scheme (e.g. blog.example.com)
+#   GHOST_DATA                  - Host path prefix for persistent data volumes (e.g. /mnt/data/ghost)
+#                                 Subdirectories content and db will be created under this path
+
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/ghost.yml
+  - templates/mysql.yml
+X-OUTPUT: services/ghost.yml
+X-OVERRIDE:
+  X-REF-GHOST-ENV:
+    - database__client=mysql
+    - database__connection__host=ghost-db
+    - database__connection__user=ghost
+    - database__connection__password=${GHOST_DB_PASSWORD:?}
+    - database__connection__database=ghost
+    - mail__transport=SMTP
+    - mail__options__service=Mailgun
+    - mail__options__auth__user=${GHOST_MAILGUN_SMTP_LOGIN:?}
+    - mail__options__auth__pass=${GHOST_MAILGUN_SMTP_PASSWORD:?}
+    - mail__from=${GHOST_MAIL_FROM:?}
+    - url=https://${GHOST_URL:?}
+  X-REF-GHOST-PORTS: []
+  X-REF-GHOST-VOLUME:
+    - ${GHOST_DATA:?}/content:/var/lib/ghost/content
+  X-REF-GHOST-DB-ENV:
+    - MYSQL_ROOT_PASSWORD=${GHOST_DB_ROOT_PASSWORD:?}
+    - MYSQL_DATABASE=ghost
+    - MYSQL_USER=ghost
+    - MYSQL_PASSWORD=${GHOST_DB_PASSWORD:?}
+  X-REF-GHOST-DB-PORTS: []
+  X-REF-GHOST-DB-VOLUME:
+    - ${GHOST_DATA:?}/db:/var/lib/mysql
+services:
+  ghost-app:
+    X-REF-FUNCT-TEMPLATE-GHOST("ghost-app",X-REF-GHOST-ENV,X-REF-GHOST-PORTS,X-REF-GHOST-VOLUME):
+    depends_on:
+      ghost-db:
+        condition: service_healthy
+    networks:
+      - ghost_network
+  ghost-db:
+    X-REF-FUNCT-TEMPLATE-MYSQL("ghost-db",X-REF-GHOST-DB-ENV,X-REF-GHOST-DB-PORTS,X-REF-GHOST-DB-VOLUME):
+    networks:
+      - ghost_network
+networks:
+  ghost_network:

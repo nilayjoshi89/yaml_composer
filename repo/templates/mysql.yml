@@ -1,0 +1,33 @@
+### SAMPLE ARGUMENTS
+# X-REF-CONTAINER-NAME: mysql_db
+# X-REF-ENV:
+#   - MYSQL_ROOT_PASSWORD=example
+#   - MYSQL_DATABASE=mydb
+#   - MYSQL_USER=user1
+#   - MYSQL_PASSWORD=example
+# X-REF-PORTS:
+#   - "3306:3306"
+# X-REF-VOLUME:
+#   - .\db:/var/lib/mysql
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-MYSQL("mysql_db",X-REF-ENV,X-REF-PORTS,X-REF-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-MYSQL:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+
+  image: X-REF-IMAGE-MYSQL
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}"
+  volumes:
+    - "{X-ARG-4}"
+  healthcheck:
+    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 15s
