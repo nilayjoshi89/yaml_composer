@@ -1,0 +1,74 @@
+services:
+  forgejo-app:
+    image: codeberg.org/forgejo/forgejo:15-rootless
+    container_name: forgejo-app
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - USER_UID=1000
+      - USER_GID=1000
+      - FORGEJO__database__DB_TYPE=postgres
+      - FORGEJO__database__HOST=forgejo-db:5432
+      - FORGEJO__database__NAME=forgejo
+      - FORGEJO__database__USER=${FORGEJO_DB_USER:?}
+      - FORGEJO__database__PASSWD=${FORGEJO_DB_PASSWORD:?}
+    ports:
+      - 3000:3000
+      - 222:2222
+    volumes:
+      - ${FORGEJO_DATA:?}/app_data:/var/lib/gitea
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      forgejo-db:
+        condition: service_healthy
+    networks:
+      - forgejo_network
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - --spider
+        - http://localhost:3000/api/v1/version
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    user: 1000:1000
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: "1.0"
+  forgejo-db:
+    image: postgres:18.3-alpine
+    container_name: forgejo-db
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - POSTGRES_DB=forgejo
+      - POSTGRES_USER=${FORGEJO_DB_USER:?}
+      - POSTGRES_PASSWORD=${FORGEJO_DB_PASSWORD:?}
+    ports: []
+    volumes:
+      - ${FORGEJO_DATA:?}/db_data:/var/lib/postgresql/data
+    networks:
+      - forgejo_network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    shm_size: 128mb
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: "1.0"
+networks:
+  forgejo_network:
+    external: true
