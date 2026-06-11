@@ -1,0 +1,42 @@
+### SAMPLE ARGUMENTS
+# X-REF-SYNCTHING-CONTAINER: syncthing
+# X-REF-SYNCTHING-ENV:
+#   - PUID=${PUID:-1000}
+#   - PGID=${PGID:-1000}
+# X-REF-SYNCTHING-PORTS:
+#   - 8384:8384
+#   - 22000:22000/tcp
+#   - 22000:22000/udp
+#   - 21027:21027/udp
+# X-REF-SYNCTHING-VOLUME:
+#   - ${SYNCTHING_PATH:?}/config:/config
+#   - ${SYNCTHING_PATH:?}/data:/data
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-SYNCTHING(X-REF-SYNCTHING-CONTAINER,X-REF-SYNCTHING-ENV,X-REF-SYNCTHING-PORTS,X-REF-SYNCTHING-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-SYNCTHING:
+  #INHERIT FROM BASE TEMPLATE
+  X-REF-BASE-TEMPLATE:
+  image: X-REF-IMAGE-SYNCTHING
+  container_name: "{X-ARG-1}"
+  hostname: syncthing
+  environment:
+    - "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}"
+  volumes:
+    - "{X-ARG-4}"
+  healthcheck:
+    test:
+      [
+        "CMD",
+        "wget",
+        "-q",
+        "--spider",
+        "http://localhost:8384/rest/noauth/health",
+      ]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 30s

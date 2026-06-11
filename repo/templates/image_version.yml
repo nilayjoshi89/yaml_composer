@@ -12,3 +12,4 @@ X-REF-IMAGE-CLOUDFLARED: cloudflare/cloudflared:2026.5.1
 X-REF-IMAGE-MYSQL: mysql:9.7
 X-REF-IMAGE-GHOST: ghost:6-alpine
 X-REF-IMAGE-FORGEJO: codeberg.org/forgejo/forgejo:15-rootless
+X-REF-IMAGE-SYNCTHING: lscr.io/linuxserver/syncthing:latest

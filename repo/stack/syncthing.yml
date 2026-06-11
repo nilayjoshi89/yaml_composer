@@ -1,0 +1,33 @@
+# Required environment variables:
+#   SYNCTHING_PATH  - Host path prefix for persistent data volumes (e.g. /mnt/data/syncthing)
+#                     Subdirectories config and data will be created under this path
+
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/syncthing.yml
+X-OUTPUT: services/syncthing.yml
+X-OVERRIDE:
+  X-REF-SYNCTHING-CONTAINER: syncthing
+  X-REF-SYNCTHING-ENV:
+    - PUID=${PUID:-1000}
+    - PGID=${PGID:-1000}
+  X-REF-SYNCTHING-PORTS:
+    - 8384:8384
+    - 22000:22000/tcp
+    - 22000:22000/udp
+    - 21027:21027/udp
+  X-REF-SYNCTHING-VOLUME:
+    - ${SYNCTHING_PATH:?}/config:/config
+    - ${SYNCTHING_PATH:?}/data:/data
+
+services:
+  syncthing:
+    X-REF-FUNCT-TEMPLATE-SYNCTHING(X-REF-SYNCTHING-CONTAINER,X-REF-SYNCTHING-ENV,X-REF-SYNCTHING-PORTS,X-REF-SYNCTHING-VOLUME):
+    profiles: [all, syncthing]
+    networks:
+      - syncthing_network
+
+networks:
+  syncthing_network:
+    external: true
