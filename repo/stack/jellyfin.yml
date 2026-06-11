@@ -1,0 +1,37 @@
+# Required environment variables:
+#   JELLYFIN_BASE_PATH            - Host path for persistent config/cache data (e.g. /mnt/data/jellyfin)
+#                                    Subdirectories config and cache will be created under this path
+#   JELLYFIN_MEDIA_PATH            - Host path prefix for media libraries (e.g. /mnt/media)
+#                                    Subdirectories movie, tv, music, and family will be created under this path
+#   JELLYFIN_PUBLISHED_SERVER_URL  - Public URL used to advertise this server (e.g. https://media.example.com)
+
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/jellyfin.yml
+X-OUTPUT: services/jellyfin.yml
+X-OVERRIDE:
+  X-REF-JELLYFIN-CONTAINER: jellyfin
+  X-REF-JELLYFIN-ENV:
+    - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_SERVER_URL:?}
+  X-REF-JELLYFIN-PORTS:
+    - 8096:8096
+  X-REF-JELLYFIN-VOLUME:
+    - ${JELLYFIN_BASE_PATH:?}/config:/config
+    - ${JELLYFIN_BASE_PATH:?}/cache:/cache
+    - ${JELLYFIN_MEDIA_PATH:?}/movie:/movie
+    - ${JELLYFIN_MEDIA_PATH:?}/tv:/tv
+    - ${JELLYFIN_MEDIA_PATH:?}/music:/music
+    - ${JELLYFIN_MEDIA_PATH:?}/family:/family
+
+services:
+  jellyfin:
+    X-REF-FUNCT-TEMPLATE-JELLYFIN(X-REF-JELLYFIN-CONTAINER,X-REF-JELLYFIN-ENV,X-REF-JELLYFIN-PORTS,X-REF-JELLYFIN-VOLUME):
+    profiles: [all, jellyfin]
+    networks:
+      - jellyfin_network
+
+networks:
+  jellyfin_network:
+    name: jellyfin_network
+    external: true

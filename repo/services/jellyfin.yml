@@ -1,0 +1,40 @@
+services:
+  jellyfin:
+    profiles:
+      - all
+      - jellyfin
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_SERVER_URL:?}
+    ports:
+      - 8096:8096
+    volumes:
+      - ${JELLYFIN_BASE_PATH:?}/config:/config
+      - ${JELLYFIN_BASE_PATH:?}/cache:/cache
+      - ${JELLYFIN_MEDIA_PATH:?}/movie:/movie
+      - ${JELLYFIN_MEDIA_PATH:?}/tv:/tv
+      - ${JELLYFIN_MEDIA_PATH:?}/music:/music
+      - ${JELLYFIN_MEDIA_PATH:?}/family:/family
+    networks:
+      - jellyfin_network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -f http://localhost:8096/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    user: 1000:1000
+    pids_limit: 100
+    mem_limit: 5g
+    cpus: "1.0"
+    security_opt:
+      - no-new-privileges:true
+networks:
+  jellyfin_network:
+    name: jellyfin_network
+    external: true

@@ -1,0 +1,39 @@
+### SAMPLE ARGUMENTS
+# X-REF-JELLYFIN-CONTAINER: jellyfin
+# X-REF-JELLYFIN-ENV:
+#   - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_SERVER_URL:?}
+# X-REF-JELLYFIN-PORTS:
+#   - 8096:8096
+# X-REF-JELLYFIN-VOLUME:
+#   - ${JELLYFIN_BASE_PATH:?}/config:/config
+#   - ${JELLYFIN_BASE_PATH:?}/cache:/cache
+#   - ${JELLYFIN_MEDIA_PATH:?}/movie:/movie
+#   - ${JELLYFIN_MEDIA_PATH:?}/tv:/tv
+#   - ${JELLYFIN_MEDIA_PATH:?}/music:/music
+#   - ${JELLYFIN_MEDIA_PATH:?}/family:/family
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-JELLYFIN(X-REF-JELLYFIN-CONTAINER,X-REF-JELLYFIN-ENV,X-REF-JELLYFIN-PORTS,X-REF-JELLYFIN-VOLUME):
+###
+
+X-REF-FUNCT-TEMPLATE-JELLYFIN:
+  X-REF-BASE-TEMPLATE-ENV:
+  X-REF-BASE-TEMPLATE-RESTART:
+  X-REF-BASE-TEMPLATE-SECURITY-OPT:
+  image: X-REF-IMAGE-JELLYFIN
+  container_name: "{X-ARG-1}"
+  user: 1000:1000
+  environment:
+    - "{X-ARG-2}"
+  ports:
+    - "{X-ARG-3}"
+  volumes:
+    - "{X-ARG-4}"
+  healthcheck:
+    test: ["CMD-SHELL", "curl -f http://localhost:8096/health || exit 1"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 30s
+  pids_limit: 100
+  mem_limit: 5g
+  cpus: "1.0"
