@@ -1,0 +1,91 @@
+# Required environment variables:
+#   ARR_VPN_SERVICE_PROVIDER           - Gluetun VPN service provider (e.g. protonvpn, mullvad, ...)
+#   ARR_VPN_TYPE                       - VPN protocol (e.g. wireguard, openvpn)
+#   ARR_SERVER_COUNTRIES               - Comma-separated list of VPN server countries
+#   ARR_VPN_PORT_FORWARDING_PROVIDER   - VPN port forwarding provider
+#   ARR_VPN_UPDATE_PERIOD               - Gluetun server list update period (e.g. 24h)
+#   ARR_WIREGUARD_PRIVATE_KEY           - WireGuard private key
+#   ARR_GLUETUN_TUN_DEVICE               - Host path to the pre-created /dev/net/tun device node
+#                                          (see: sudo mknod <path> c 10 200)
+#   ARR_GLUETUN_SERVICE_NAME             - Gluetun service name, used for network_mode: service:<name>
+#   ARR_PROWLARR_CONFIG_PATH             - Host path for Prowlarr config
+#   ARR_RADARR_CONFIG_PATH               - Host path for Radarr config
+#   ARR_SONARR_CONFIG_PATH               - Host path for Sonarr config
+#   ARR_QBITTORRENT_CONFIG_PATH          - Host path for qBittorrent config
+#   ARR_DATA_PATH                        - Host path for shared media/download data
+
+X-INCLUDE:
+  - templates/core.yml
+  - templates/image_version.yml
+  - templates/arr.yml
+X-OUTPUT: services/arr.yml
+X-OVERRIDE:
+  X-REF-GLUETUN-DEVICES:
+    - ${ARR_GLUETUN_TUN_DEVICE:?}:/dev/net/tun
+  X-REF-GLUETUN-ENV:
+    - VPN_SERVICE_PROVIDER=${ARR_VPN_SERVICE_PROVIDER:?}
+    - VPN_TYPE=${ARR_VPN_TYPE:?}
+    - SERVER_COUNTRIES=${ARR_SERVER_COUNTRIES:?}
+    - VPN_PORT_FORWARDING_PROVIDER=${ARR_VPN_PORT_FORWARDING_PROVIDER:?}
+    - UPDATE_PERIOD=${ARR_VPN_UPDATE_PERIOD:?}
+    - WIREGUARD_PRIVATE_KEY=${ARR_WIREGUARD_PRIVATE_KEY:?}
+  X-REF-GLUETUN-PORTS:
+    - "7878:7878"
+    - "8080:8080"
+    - "9696:9696"
+    - "8989:8989"
+
+  X-REF-ARR-NETWORK-MODE: service:${ARR_GLUETUN_SERVICE_NAME:?}
+
+  X-REF-PROWLARR-ENV:
+    - PUID=1000
+    - PGID=1000
+    - TZ=Asia/Singapore
+  X-REF-PROWLARR-VOLUME:
+    - ${ARR_PROWLARR_CONFIG_PATH:?}:/config
+    - ${ARR_DATA_PATH:?}:/data
+
+  X-REF-RADARR-ENV:
+    - PUID=1000
+    - PGID=1000
+    - TZ=Asia/Singapore
+  X-REF-RADARR-VOLUME:
+    - ${ARR_RADARR_CONFIG_PATH:?}:/config
+    - ${ARR_DATA_PATH:?}:/data
+
+  X-REF-SONARR-ENV:
+    - PUID=1000
+    - PGID=1000
+    - TZ=Asia/Singapore
+  X-REF-SONARR-VOLUME:
+    - ${ARR_SONARR_CONFIG_PATH:?}:/config
+    - ${ARR_DATA_PATH:?}:/data
+
+  X-REF-QBITTORRENT-ENV:
+    - PUID=1000
+    - PGID=1000
+    - TZ=Asia/Singapore
+    - WEBUI_PORT=8080
+    - TORRENTING_PORT=6881
+  X-REF-QBITTORRENT-VOLUME:
+    - ${ARR_QBITTORRENT_CONFIG_PATH:?}:/config
+    - ${ARR_DATA_PATH:?}:/data
+
+services:
+  gluetun:
+    X-REF-FUNCT-TEMPLATE-GLUETUN("gluetun",X-REF-GLUETUN-DEVICES,X-REF-GLUETUN-ENV,X-REF-GLUETUN-PORTS):
+    networks:
+      - arr_stack_network
+  prowlarr:
+    X-REF-FUNCT-TEMPLATE-PROWLARR("prowlarr",X-REF-PROWLARR-ENV,X-REF-PROWLARR-VOLUME,X-REF-ARR-NETWORK-MODE):
+  radarr:
+    X-REF-FUNCT-TEMPLATE-RADARR("radarr",X-REF-RADARR-ENV,X-REF-RADARR-VOLUME,X-REF-ARR-NETWORK-MODE):
+  sonarr:
+    X-REF-FUNCT-TEMPLATE-SONARR("sonarr",X-REF-SONARR-ENV,X-REF-SONARR-VOLUME,X-REF-ARR-NETWORK-MODE):
+  qbittorrent:
+    X-REF-FUNCT-TEMPLATE-QBITTORRENT("qbittorrent",X-REF-QBITTORRENT-ENV,X-REF-QBITTORRENT-VOLUME,X-REF-ARR-NETWORK-MODE):
+
+networks:
+  arr_stack_network:
+    name: arr_stack_network
+    external: true

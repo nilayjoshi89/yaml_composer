@@ -1,0 +1,96 @@
+### SAMPLE ARGUMENTS
+# Gluetun:
+# X-REF-GLUETUN-DEVICES:
+#   - ${ARR_GLUETUN_TUN_DEVICE:?}:/dev/net/tun
+# X-REF-GLUETUN-ENV:
+#   - VPN_SERVICE_PROVIDER=protonvpn
+#   - VPN_TYPE=wireguard
+#   - WIREGUARD_PRIVATE_KEY=secret
+# X-REF-GLUETUN-PORTS:
+#   - "8989:8989"
+#
+# Prowlarr/Radarr/Sonarr/qBittorrent (share the same shape):
+# X-REF-PROWLARR-ENV:
+#   - PUID=1000
+#   - PGID=1000
+#   - TZ=Asia/Singapore
+# X-REF-PROWLARR-VOLUME:
+#   - ${ARR_PROWLARR_CONFIG_PATH:?}:/config
+#   - ${ARR_DATA_PATH:?}:/data
+# X-REF-ARR-NETWORK-MODE: service:gluetun
+### FUNCTION CALL
+# X-REF-FUNCT-TEMPLATE-GLUETUN("gluetun",X-REF-GLUETUN-DEVICES,X-REF-GLUETUN-ENV,X-REF-GLUETUN-PORTS):
+# X-REF-FUNCT-TEMPLATE-PROWLARR("prowlarr",X-REF-PROWLARR-ENV,X-REF-PROWLARR-VOLUME,X-REF-ARR-NETWORK-MODE):
+# X-REF-FUNCT-TEMPLATE-RADARR("radarr",X-REF-RADARR-ENV,X-REF-RADARR-VOLUME,X-REF-ARR-NETWORK-MODE):
+# X-REF-FUNCT-TEMPLATE-SONARR("sonarr",X-REF-SONARR-ENV,X-REF-SONARR-VOLUME,X-REF-ARR-NETWORK-MODE):
+# X-REF-FUNCT-TEMPLATE-QBITTORRENT("qbittorrent",X-REF-QBITTORRENT-ENV,X-REF-QBITTORRENT-VOLUME,X-REF-ARR-NETWORK-MODE):
+###
+
+#INHERIT FROM BASE TEMPLATE - shared by all *arr/qbittorrent apps
+X-REF-ARR-APP-BASE:
+  X-REF-BASE-TEMPLATE-RESTART:
+  X-REF-BASE-TEMPLATE-SECURITY-OPT:
+  profiles: [all, arr_stack]
+  depends_on:
+    - gluetun
+  pids_limit: 100
+  cpus: "1.0"
+
+X-REF-FUNCT-TEMPLATE-GLUETUN:
+  X-REF-BASE-TEMPLATE-SECURITY-OPT:
+  X-REF-BASE-TEMPLATE-LIMITS:
+  image: X-REF-IMAGE-GLUETUN
+  container_name: "{X-ARG-1}"
+  cap_add:
+    - NET_ADMIN
+  devices:
+    - "{X-ARG-2}"
+  environment:
+    - "{X-ARG-3}"
+  ports:
+    - "{X-ARG-4}"
+  restart: always
+
+X-REF-FUNCT-TEMPLATE-PROWLARR:
+  X-REF-ARR-APP-BASE:
+  image: X-REF-IMAGE-PROWLARR
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  volumes:
+    - "{X-ARG-3}"
+  network_mode: "{X-ARG-4}"
+  mem_limit: 512m
+
+X-REF-FUNCT-TEMPLATE-RADARR:
+  X-REF-ARR-APP-BASE:
+  image: X-REF-IMAGE-RADARR
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  volumes:
+    - "{X-ARG-3}"
+  network_mode: "{X-ARG-4}"
+  mem_limit: 512m
+
+X-REF-FUNCT-TEMPLATE-SONARR:
+  X-REF-ARR-APP-BASE:
+  image: X-REF-IMAGE-SONARR
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  volumes:
+    - "{X-ARG-3}"
+  network_mode: "{X-ARG-4}"
+  mem_limit: 512m
+
+X-REF-FUNCT-TEMPLATE-QBITTORRENT:
+  X-REF-ARR-APP-BASE:
+  image: X-REF-IMAGE-QBITTORRENT
+  container_name: "{X-ARG-1}"
+  environment:
+    - "{X-ARG-2}"
+  volumes:
+    - "{X-ARG-3}"
+  network_mode: "{X-ARG-4}"
+  mem_limit: 1g
